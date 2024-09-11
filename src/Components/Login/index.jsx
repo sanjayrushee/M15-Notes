@@ -120,7 +120,7 @@ class Login extends Component{
                       </div>
                       <input
                         className="text-gray-200 bg-gray-900 border rounded py-2 px-4 block w-full focus:outline-2 focus:outline-blue-700"
-                        type="text"
+                        type="password"
                         required
                         value={password}
                         onChange={this.handleChangepassword}

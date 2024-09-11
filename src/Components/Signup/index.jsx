@@ -10,6 +10,7 @@ const signup_api = API_CONFIG.RegUrl
 class Signup extends Component{
   state = {
     ispasswordVisible: true,
+    isrepasswordVisible:true,
     username:"",
     email:"",
     password: "",
@@ -19,9 +20,15 @@ class Signup extends Component{
     erroMsg: ''
   }
 
-  testing = () =>{
+  ispassword = () =>{
     this.setState((prevState) =>({
       ispasswordVisible: !prevState.ispasswordVisible
+    }))
+  }
+
+  isrepassword = () =>{
+    this.setState((prevState) =>({
+      isrepasswordVisible: !prevState.isrepasswordVisible
     }))
   }
 
@@ -54,6 +61,7 @@ class Signup extends Component{
       this.setState({ iserror: true, erroMsg:"Please check the password again."})
       return
     }
+
     this.setState({isloading: true})
 
     const options = {
@@ -96,9 +104,9 @@ class Signup extends Component{
   render() {
       const {iserror,isloading,erroMsg}= this.state
     return(
-      <div className="font-[sans-serif] max-w-4xl flex items-center mx-auto md:min-h-screen p-4">
+      <div className="font-[sans-serif]  max-w-4xl flex items-center mx-auto md:min-h-screen p-4">
         <div className="relative grid bg-gray-900  text-gray-200 md:grid-cols-3 items-center shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded-xl overflow-hidden">
-        <div className={`${isloading ? 'flex' : 'hidden'} hidden absolute inset-0 z-30 bg-gray-900 bg-opacity-80   items-center justify-center`} >
+        <div className={`${isloading ? 'flex' : 'hidden'}  absolute inset-0 z-30 bg-gray-900 bg-opacity-80   items-center justify-center`} >
         <RingLoader color="#00abff" />
         </div>
         <div className="max-md:order-1 flex flex-col justify-center space-y-16 max-md:mt-16 min-h-full bg-gradient-to-r from-gray-900 to-gray-700 lg:px-8 px-4 py-4">
@@ -111,7 +119,7 @@ class Signup extends Component{
             <p className="text-[13px] text-gray-300 mt-3 leading-relaxed">Let your notes be the pathway to your dream. where ideas are nurtured, clarity is achieved, and the full potential of your creativity is realized.</p>
           </div>
         </div>
-        <form  onSubmit={this.onSubmitForm}  className="md:col-span-2 text-gray-200 w-full py-6 px-6  sm:px-16">
+        <form  onSubmit={this.onSubmitForm}  className="md:col-span-2 bg-gray-900 text-gray-200 w-full py-6 px-6  sm:px-16">
           <div className="mb-6">
             <h3 className=" text-2xl font-bold">Create an account</h3>
           </div>
@@ -132,7 +140,7 @@ class Signup extends Component{
 
           <div>
             <label className=" text-sm mb-2 block">Email Id</label>
-            <div className="relative flex items-center">
+            <div className="relative flex items-center ">
               <input 
                 name="email" 
                 type="email" 
@@ -157,12 +165,12 @@ class Signup extends Component{
               />
               {this.state.ispasswordVisible ? (
                 <BsFillEyeSlashFill 
-                  onClick={this.testing} 
+                  onClick={this.ispassword} 
                   className="w-4 h-4 absolute right-4 cursor-pointer" 
                 />
               ) : (
                 <IoEyeSharp 
-                  onClick={this.testing} 
+                  onClick={this.ispassword} 
                   className="w-4 h-4 absolute right-4 cursor-pointer" 
                 />
               )}
@@ -175,19 +183,19 @@ class Signup extends Component{
               <input 
                 name="repassword"
                 onChange={this.onchangeRepassword}
-                type={this.state.ispasswordVisible ? "password" :  "text"}
+                type={this.state.isrepasswordVisible ? "password" :  "text"}
                 required 
                 className="border bg-gray-900 border-gray-300 w-full text-sm px-4 py-2.5 rounded-md outline-blue-500" 
                 placeholder="Enter password" 
               />
-              {this.state.ispasswordVisible ? (
+              {this.state.isrepasswordVisible ? (
                 <BsFillEyeSlashFill 
-                  onClick={this.testing} 
+                  onClick={this.isrepassword} 
                   className="w-4 h-4 absolute right-4 cursor-pointer" 
                 />
               ) : (
                 <IoEyeSharp 
-                  onClick={this.testing} 
+                  onClick={this.isrepassword} 
                   className="w-4 h-4 absolute right-4 cursor-pointer" 
                 />
               )}
@@ -210,7 +218,7 @@ class Signup extends Component{
                </div>
                   </div>
                   <div className="!mt-6">
-                    <button type="button  " className="w-full py-3 px-4 tracking-wider text-sm rounded-md text-white bg-gray-700 hover:bg-gray-800 focus:outline-none">
+                    <button type="submit" className="w-full py-3 px-4 tracking-wider text-sm rounded-md text-white bg-gray-700 hover:bg-gray-800 focus:outline-none">
                       Create an account
                     </button>
                   </div>
