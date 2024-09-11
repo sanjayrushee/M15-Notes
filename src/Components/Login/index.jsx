@@ -12,7 +12,7 @@ class Login extends Component{
     password: '',
     isloading: false,
     iserror: false,
-    erroMsg: 'dfsdf'
+    erroMsg: ''
   }
 
   onSubmitSuccess = jsToken => {
