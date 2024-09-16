@@ -57,7 +57,7 @@ class Signup extends Component{
   onSubmitForm =  async(event) =>{
     event.preventDefault()
     const {username,password,Repassword,email} = this.state 
-    if (Repassword !== password) {
+    if (Repassword != password) {
       this.setState({ iserror: true, erroMsg:"Please check the password again."})
       return
     }
@@ -102,7 +102,8 @@ class Signup extends Component{
   }
 
   render() {
-      const {iserror,isloading,erroMsg}= this.state
+    const { iserror, isloading, erroMsg } = this.state
+    console.log(iserror,erroMsg)
     return(
       <div className="font-[sans-serif]  max-w-4xl flex items-center mx-auto md:min-h-screen p-4">
         <div className="relative grid bg-gray-900  text-gray-200 md:grid-cols-3 items-center shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded-xl overflow-hidden">
@@ -119,7 +120,7 @@ class Signup extends Component{
             <p className="text-[13px] text-gray-300 mt-3 leading-relaxed">Let your notes be the pathway to your dream. where ideas are nurtured, clarity is achieved, and the full potential of your creativity is realized.</p>
           </div>
         </div>
-        <form  onSubmit={this.onSubmitForm}  className="md:col-span-2 bg-gray-900 text-gray-200 w-full py-6 px-6  sm:px-16">
+        <form  autocomplete="off" onSubmit={this.onSubmitForm}  className="md:col-span-2 bg-gray-900 text-gray-200 w-full py-6 px-6  sm:px-16">
           <div className="mb-6">
             <h3 className=" text-2xl font-bold">Create an account</h3>
           </div>
@@ -199,8 +200,8 @@ class Signup extends Component{
                   className="w-4 h-4 absolute right-4 cursor-pointer" 
                 />
               )}
-                </div>
-                {iserror? " " :  <p className="mt-3">{erroMsg}</p>}
+            </div>
+                {iserror? <h3 className="mt-5 text-red-600 font-bold">* {erroMsg}</h3> : ""}
           </div>
 
           <div className="flex  items-center">
@@ -218,7 +219,7 @@ class Signup extends Component{
                </div>
                   </div>
                   <div className="!mt-6">
-                    <button type="submit" className="w-full py-3 px-4 tracking-wider text-sm rounded-md text-white bg-gray-700 hover:bg-gray-800 focus:outline-none">
+                    <button type="submit" className="w-full py-3 px-4 tracking-wider text-sm rounded-md text-white bg-blue-700 hover:bg-gray-800 focus:outline-none">
                       Create an account
                     </button>
                   </div>

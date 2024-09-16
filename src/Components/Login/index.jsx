@@ -12,7 +12,7 @@ class Login extends Component{
     password: '',
     isloading: false,
     iserror: false,
-    erroMsg: ''
+    errorMsg: ''
   }
 
   onSubmitSuccess = jsToken => {
@@ -25,6 +25,7 @@ class Login extends Component{
   }
   
   onSubmitFail = error => {
+    console.log(error)
     this.setState({iserror: true, errorMsg:error})
 
   }
@@ -56,7 +57,6 @@ class Login extends Component{
       } else {
         this.onSubmitFail(data.error)
         this.setState({isloading: false})
-
       }
     } catch (error) {
       console.error('Error:', error);
@@ -86,15 +86,15 @@ class Login extends Component{
   )
     
   render() {
-      console.log(Api_link_login)
-      const {email,password,isloading,iserror,erroMsg} = this.state
+    const { email, password, isloading, iserror, errorMsg } = this.state
+    console.log(iserror,errorMsg)
              return(
                 <div className="flex items-center justify-center h-screen w-full px-5 sm:px-0">
                 <div className="flex  items-center bg-gray-900  rounded-lg shadow-lg border overflow-hidden max-w-sm lg:max-w-4xl w-full">
                   <div
                     className="hidden lg:block lg:w-3/4  bg-blue-600 "
                    >
-                     <img src="\src\assets\computer_login.png" alt="" srcset="" />
+                     <img src="\src\assets\computer_login.png" alt=""  />
                   </div>
                   <form onSubmit={this.onSubmitFunction} className="w-full p-8  text-gray-200  lg:w-1/2">
                      <p className="text-xl font-bold text-center p-4">Welcome back!</p>
@@ -128,7 +128,7 @@ class Login extends Component{
                     
                      </div>
                      { iserror ?
-                     <h3 className="">{erroMsg}</h3> : ' ' }
+                     <h3 className="text-red-600 font-bold">* {errorMsg}</h3> : ' ' }
                      <div className="mt-8">
                     
                        {isloading ? this.loadingbtn() :
