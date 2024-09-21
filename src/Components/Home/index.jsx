@@ -1,104 +1,167 @@
 import { Component } from "react";
-import { IoArchiveOutline } from "react-icons/io5";
-import { MdOutlineLightbulb } from "react-icons/md";
-import { MdDeleteOutline } from "react-icons/md";
-import { CiLogout } from "react-icons/ci";
-import { IoCloseCircleOutline } from "react-icons/io5";
-import Cookies from 'js-cookie'
+import { MdAddBox } from "react-icons/md";
 import Navbar from "../Navbar";
+import { API_CONFIG } from '../ProductRoute&APIs/apiConfig';
+import Cookies from 'js-cookie';
+
+const addnoteslink = API_CONFIG.addnotes;
+const fetchNotesLink = API_CONFIG.fetchNotesLink;
+const Token = Cookies.get('jwtToken');
 
 class Home extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isSidebarVisible: false,
+  state = {
+    isFormVisible: false,
+    text: '',
+    title: '',
+    rows: 3,
+    notes: [],
+  };
+
+  handleKeyDownTitle = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault(); // Prevent the default form submission
+      this.textareaRef.focus(); // Move focus to the textarea
+    }
+  };
+
+  componentDidMount() {
+    this.fetchNotes();
+  }
+
+  handleButtonClick = () => {
+    this.setState({ isFormVisible: true });
+  };
+
+  onChangeTitle = (e) => {
+    this.setState({ title: e.target.value });
+  };
+
+  onChangeText = (e) => {
+    this.setState({ text: e.target.value });
+  };
+
+  autoResize = (event) => {
+    const target = event.target;
+    target.style.height = 'auto'; // Reset the height
+
+    const maxRows = 10;
+    const lineHeight = parseInt(window.getComputedStyle(target).lineHeight, 10);
+    const maxHeight = maxRows * lineHeight;
+
+    target.style.height = `${Math.min(target.scrollHeight, maxHeight)}px`; // Set height to scrollHeight or maxHeight
+  };
+
+  onSubmitNotes = async (event) => {
+    event.preventDefault(); // Prevent default form submission
+    this.setState({ isFormVisible: false });
+    const { title, text } = this.state;
+
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Token}`,
+      },
+      body: JSON.stringify({
+        title,
+        description: text,
+      }),
     };
-  }
 
-  toggleSidebar = () => {
-    this.setState({ isSidebarVisible: !this.state.isSidebarVisible });
+    try {
+      const response = await fetch(addnoteslink, options);
+      const data = await response.text();
+      console.log(data);
+      this.fetchNotes(); // Fetch notes again to update the list
+    } catch (error) {
+      console.error('Error:', error);
+      alert(error);
+    }
   };
 
-  closeSidebar = () => {
-    this.setState({ isSidebarVisible: false });
-  };
+  fetchNotes = async () => {
+    const options = {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${Token}`,
+      },
+    };
 
-   onClickLogout = () => {
-    Cookies.remove('jwtToken')
-    const {history} = this.props
-    history.replace('/login')
-  }
+    try {
+      const response = await fetch(fetchNotesLink, options);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error fetching notes');
+      }
+
+      const notes = await response.json();
+      this.setState({ notes });
+    } catch (error) {
+      console.error('Error fetching notes:', error);
+    }
+  };
 
   render() {
-    const { isSidebarVisible } = this.state;
-
+    const { isFormVisible, notes } = this.state;
     return (
       <>
-        <>
-          <button
-            onClick={this.toggleSidebar} 
-            type="button"
-            className="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-          >
-            <span className="sr-only">Open sidebar</span>
-            <svg className="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-              <path clipRule="evenodd" fillRule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
-            </svg>
-          </button>
-          <aside
-            id="default-sidebar"
-            className={`fixed top-0 left-0 z-40 w-64  min-h-screen transition-transform transform ${
-              isSidebarVisible ? "translate-x-0" : "-translate-x-full"
-            } sm:translate-x-0`} 
-            aria-label="Sidebar"    
-          >
-            <div className="min-h-screen px-3 py-4 flex flex-col justify-between overflow-y-auto bg-gray-50 dark:bg-gray-800">
-              <ul className="space-y-2 font-medium sm:mt-7">
-                <li className="py-2 sm:hidden text-end">
-                  <button onClick={this.closeSidebar} className="text-gray-500 dark:text-gray-400 hover:text-red-600 pl-7">
-                    <IoCloseCircleOutline className="w-7 h-7" />
-                  </button>
-                </li>
-                <li>
-                  <a href="#" className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                    <MdOutlineLightbulb className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                    <span className="ms-3">Notes</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                    <IoArchiveOutline className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                    <span className="flex-1 ms-3 whitespace-nowrap">Archived</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                    <MdDeleteOutline className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                    <span className="flex-1 ms-3 whitespace-nowrap">Delete</span>
-                    <span className="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300">3</span>
-                  </a>
-                </li>
-              </ul>
-              <div className="bg-blue-700 border rounded-xl w-4/5 flex justify-center mb-7 mx-4 hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                <button type="button" onClick={this.onClickLogout} className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white">
-                  <CiLogout className="flex-shrink-0 w-5 h-5 text-white transition duration-75 dark:text-gray-100 group-hover:text-gray-900 dark:group-hover:text-white" />
-                  <span className="flex-1 ms-3 whitespace-nowrap">Log out</span>
-                </button>
-              </div>
-            </div>
-          </aside>
-
-          <div className="min-h-screen sm:ml-72 sm:mt-3  inset-0">
-            <div className="flex justify-start mb-4">
-              <button
-                type="button"
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
-              >
-                + Add
-              </button>
-            </div>
+        <Navbar />
+        <nav className="bg-blue-800">
+          <p>Navigation Bar</p>
+        </nav>
+        <div className="relative min-h-screen sm:ml-72 sm:mt-3 inset-0">
+          <div className="mb-4 flex justify-start">
+            <button
+              className="bg-blue-700 flex"
+              type="button"
+              onClick={this.handleButtonClick}
+            >
+              <MdAddBox /> <span>Add Note</span>
+            </button>
           </div>
-        </>
+          {isFormVisible && (
+            <>
+              <div className="fixed inset-0 bg-black opacity-50 z-10" />
+              <div className="absolute h-auto inset-0 flex items-start justify-center z-20">
+                <div className="w-full max-w-md p-4 bg-white border shadow-md rounded-md">
+                  <form onSubmit={this.onSubmitNotes} className="flex flex-col space-y-3">
+                    <input
+                      className="w-full bg-transparent border-b border-gray-300 p-2 focus:outline-none focus:border-yellow-500 text-gray-700 text-lg placeholder-gray-500"
+                      placeholder="Title"
+                      type="text"
+                      onChange={this.onChangeTitle}
+                      onKeyDown={this.handleKeyDownTitle}
+                    />
+                    <textarea
+                      className="w-full bg-transparent border-b border-gray-300 p-2 focus:outline-none focus:border-yellow-500 text-gray-700 placeholder-gray-500 resize-none"
+                      placeholder="Take a note..."
+                      rows={this.state.rows}
+                      onInput={this.autoResize}
+                      onChange={this.onChangeText}
+                      ref={(ref) => { this.textareaRef = ref; }} // Reference for the textarea
+                    />
+                    <div className="flex h-auto justify-end">
+                      <button
+                        type="submit"
+                        className="text-yellow-600 hover:bg-yellow-100 rounded px-4 py-1 focus:outline-none"
+                      >
+                        Submit
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </>
+          )}
+          <div className="flex flex-wrap">
+            {notes.map((note, index) => (
+              <div className="w-52 border-solid border border-gray-100 m-3" key={index}>
+                <h2>{note.title}</h2>
+                <p>{note.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </>
     );
   }

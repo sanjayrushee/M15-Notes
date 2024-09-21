@@ -1,4 +1,3 @@
-
 html, body, div, h1, h2, h3, h4, h5, h6, p, ul, ol, li, a, table, th, td {
   margin: 0;
   padding: 0;
@@ -26,15 +25,20 @@ ul, ol {
   list-style: none;
 }
 
-
 button {
   cursor: pointer;
   background-color: transparent; 
   border: none; 
+  outline: none; 
 }
 
 input, textarea, select, button {
   font: inherit;
+  outline: none; 
+}
+
+input:focus, textarea:focus, select:focus, button:focus {
+  outline: none; 
 }
 
 @tailwind base;

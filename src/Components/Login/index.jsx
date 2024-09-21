@@ -34,8 +34,6 @@ class Login extends Component{
     event.preventDefault()
     this.setState({isloading: true})
     const { email, password } = this.state;
-    console.log(password, email);
-
     const options = {
       method: 'POST',
       headers: {
