@@ -7,8 +7,8 @@ import NotFound from './Components/NotFound';
 
 const App = () => (
   <Switch>
-    {'<AuthRoute exact path="/login" component={Login} /> '}
-    {'<AuthRoute exact path="/signup" component={Signup} /> '}
+    <AuthRoute exact path="/login" component={Login} /> 
+    <AuthRoute exact path="/signup" component={Signup} /> 
     <ProductRoute exact path="/" component={Home} />
     <Route path="/not-found" component={NotFound} />
     <Redirect to="/not-found" />
