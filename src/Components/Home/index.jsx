@@ -13,9 +13,9 @@ class Home extends Component {
     isFormVisible: false,
     text: '',
     title: '',
-    rows: 3,
+    rows: 4,
     notes: [],
-    editingNote: null, // Track which note is being edited
+    editingNote: null, 
   };
 
   componentDidMount() {
@@ -24,6 +24,7 @@ class Home extends Component {
 
   deleteNote = async (noteId) => {
     console.log(noteId)
+    console.log(Token)
     const options = {
       method: 'delete',
       headers: {
@@ -48,26 +49,26 @@ class Home extends Component {
 
   archiveNote = async (noteId) => {
     const options = {
-      method: 'PUT', // Assuming PUT is used to update note status
+      method: 'POST', // Use POST based on your backend implementation
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${Token}`,
       },
-      body: JSON.stringify({ archived: true }), // Example payload for archiving
     };
-
+  
     try {
-      const response = await fetch(`${addnoteslink}/${noteId}`, options);
+      const response = await fetch(`${fetchNotesLink}/${noteId}/archive`, options);
       if (!response.ok) {
         const errorText = await response.json();
-        throw new Error(errorText || 'Error archiving note');
+        throw new Error(errorText.error || 'Error archiving note'); // Access the error message properly
       }
       this.fetchNotes(); // Refresh notes after archiving
     } catch (error) {
       console.error('Error archiving note:', error);
-      alert(error);
+      alert(error.message); // Alert the error message
     }
   };
+  
 
   handleKeyDownTitle = (event) => {
     if (event.key === 'Enter') {
@@ -115,9 +116,9 @@ class Home extends Component {
     try {
       const url = editingNote ? `${fetchNotesLink}/${editingNote._id}` : addnoteslink; // Adjust URL for PUT request
       const response = await fetch(url, options);
-      const data = await response.json();
+      const data = await response.text();
       console.log(data);
-      this.fetchNotes(); // Fetch notes again to update the list
+      this.fetchNotes(); 
       this.setState({ isFormVisible: false, editingNote: null }); // Reset form
     } catch (error) {
       console.error('Error:', error);
@@ -157,31 +158,28 @@ class Home extends Component {
 
   render() {
     const { isFormVisible, notes, title, text } = this.state;
-    console.log(notes)
+
     return (
       <>
         <Navbar />
-        <nav className="bg-blue-800">
-          <p>Navigation Bar</p>
-        </nav>
-        <div className="relative min-h-screen sm:ml-72 sm:mt-3 inset-0">
-          <div className="mb-4 flex justify-start">
+        <div className="relative min-h-screen mx-3 my-3 sm:ml-72 sm:mt-3 inset-0">
+          <div className="mb-4">
             <button
-              className="bg-blue-700 flex"
+              className="bg-blue-700 p-2 py-3 rounded-lg flex justify-center items-center"
               type="button"
               onClick={this.handleButtonClick}
             >
-              <MdAddBox /> <span>Add Note</span>
+              <MdAddBox size={22}/> <span className="ml-2 mr-2 font-bold">Add Note</span>
             </button>
           </div>
           {isFormVisible && (
             <>
               <div className="fixed inset-0 bg-black opacity-50 z-10" />
-              <div className="absolute h-auto inset-0 flex items-start justify-center z-20">
-                <div className="w-full max-w-md p-4 bg-white border shadow-md rounded-md">
+              <div className="fixed inset-0 sm:left-40 flex items-center justify-center z-20">
+                <div className="w-full max-w-3xl p-4 bg-[#1B1B1B] text-[#F4FAF8] border shadow-md rounded-md mx-4 sm:mx-0"> {/* Add margin */}
                   <form onSubmit={this.onSubmitNotes} className="flex flex-col space-y-3">
                     <input
-                      className="w-full bg-transparent border-b border-gray-300 p-2 focus:outline-none focus:border-yellow-500 text-gray-700 text-lg placeholder-gray-500"
+                      className="w-full bg-transparent border-b border-gray-300 p-2 focus:outline-none focus:border-yellow-500  text-lg placeholder-gray-500"
                       placeholder="Title"
                       type="text"
                       value={title}
@@ -189,7 +187,7 @@ class Home extends Component {
                       onKeyDown={this.handleKeyDownTitle}
                     />
                     <textarea
-                      className="w-full bg-transparent border-b border-gray-300 p-2 focus:outline-none focus:border-yellow-500 text-gray-700 placeholder-gray-500 resize-none"
+                      className="w-full bg-transparent border-b border-gray-300 p-2 focus:outline-none focus:border-yellow-500  placeholder-gray-500 resize-none"
                       placeholder="Take a note..."
                       rows={this.state.rows}
                       value={text}
@@ -200,8 +198,8 @@ class Home extends Component {
                     <div className="flex h-auto justify-between">
                       <button
                         type="submit"
-                        className="text-yellow-600 hover:bg-yellow-100 rounded px-4 py-1 focus:outline-none"
-                      >
+                        className="text-[#fff] hover:text-blue-700 rounded px-4 py-1 focus:outline-none"
+                        >
                         {this.state.editingNote ? 'Update' : 'Submit'}
                       </button>
                       {this.state.editingNote && (
@@ -226,14 +224,14 @@ class Home extends Component {
               </div>
             </>
           )}
-          <div className="columns-2 md:columns-4 gap-4">
+          <div className=" columns-2 md:columns-4 gap-4">
             {notes.slice().reverse().map((note, index) => (
               <div
                 className="group break-inside-avoid border border-gray-700 rounded-lg p-4 shadow-sm bg-gray-900 text-white mb-4 cursor-pointer"
                 key={index}
                 onClick={() => this.startEditing(note)} // Start editing when clicked
               >
-                <h2 className="text-lg font-bold mb-2">{note.title}</h2>
+                <h2 className="text-lg font-bold mb-2 overflow-hidden text-ellipsis">{note.title}</h2>
                 <p className="text-gray-400 mb-4 overflow-hidden text-ellipsis">{note.description}</p>
                 <div className="flex justify-between mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
@@ -246,6 +244,7 @@ class Home extends Component {
                   >
                     Delete
                   </button>
+                  
                   <button
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent triggering startEditing when clicking archive
@@ -254,8 +253,8 @@ class Home extends Component {
                     className="text-blue-400 hover:text-blue-300" 
                     type="button"
                   >
-                    Archive
-                  </button>
+                    
+                  </button> 
                 </div>
               </div>
             ))}

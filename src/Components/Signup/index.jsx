@@ -161,6 +161,7 @@ class Signup extends Component{
                 onChange={this.onchangepassword}
                 type={this.state.ispasswordVisible ? "password" :  "text"}
                 required 
+                minLength="7"
                 className="border bg-gray-900 border-gray-300 w-full text-sm px-4 py-2.5 rounded-md outline-blue-500" 
                 placeholder="Enter password" 
               />
@@ -186,6 +187,7 @@ class Signup extends Component{
                 onChange={this.onchangeRepassword}
                 type={this.state.isrepasswordVisible ? "password" :  "text"}
                 required 
+                minLength="7"
                 className="border bg-gray-900 border-gray-300 w-full text-sm px-4 py-2.5 rounded-md outline-blue-500" 
                 placeholder="Enter password" 
               />
