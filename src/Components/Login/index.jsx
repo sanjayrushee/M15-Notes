@@ -3,7 +3,7 @@ import {Link} from 'react-router-dom'
 import { API_CONFIG } from '../ProductRoute&APIs/apiConfig'
 import Cookies from 'js-cookie'
 
-const Api_link_login = API_CONFIG.LoginUrl
+const Api_link_login = API_CONFIG.UserRegLink
 
 class Login extends Component{
 
@@ -46,7 +46,7 @@ class Login extends Component{
     };
 
     try {
-      const response = await fetch(Api_link_login, options);
+      const response = await fetch(`${Api_link_login}/login`, options);
       const data = await response.json();
 
       if (response.ok) {
@@ -85,14 +85,13 @@ class Login extends Component{
     
   render() {
     const { email, password, isloading, iserror, errorMsg } = this.state
-    console.log(iserror,errorMsg)
              return(
-                <div className="flex items-center justify-center h-screen w-full px-5 sm:px-0">
+              <div className="flex items-center justify-center min-h-screen w-full px-5 sm:px-0">
                 <div className="flex  items-center bg-gray-900  rounded-lg shadow-lg border overflow-hidden max-w-sm lg:max-w-4xl w-full">
                   <div
                     className="hidden lg:block lg:w-3/4  bg-blue-600 "
                    >
-                     <img src="\src\assets\computer_login.png" alt=""  />
+                     <img src="\computer_login.png" alt=""  />
                   </div>
                   <form onSubmit={this.onSubmitFunction} className="w-full p-8  text-gray-200  lg:w-1/2">
                      <p className="text-xl font-bold text-center p-4">Welcome back!</p>
@@ -123,8 +122,14 @@ class Login extends Component{
                         value={password}
                         onChange={this.handleChangepassword}
                       />
-                    
                      </div>
+                     <div className="text-end">
+                     <Link to="/pswforgot">
+                        <span className="text-end text-blue-600 text-sm font-medium">Forgot password</span>
+                        </Link>
+                     </div>
+
+                    
                      { iserror ?
                      <h3 className="text-red-600 font-bold">* {errorMsg}</h3> : ' ' }
                      <div className="mt-8">
@@ -134,6 +139,7 @@ class Login extends Component{
                         Login
                        </button> 
                         }
+                        
                     </div>
                     <div className="mt-4 text-sm flex items-center w-full text-center">
                       <p

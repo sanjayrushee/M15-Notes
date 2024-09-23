@@ -40,7 +40,7 @@ class Home extends Component {
         console.log(errorText)
         throw new Error(errorText || 'Error deleting note');
       }
-      this.fetchNotes(); // Refresh notes after deletion
+      this.fetchNotes(); 
     } catch (error) {
       console.error('Error deleting note:', error);
       alert(error);
@@ -49,7 +49,7 @@ class Home extends Component {
 
   archiveNote = async (noteId) => {
     const options = {
-      method: 'POST', // Use POST based on your backend implementation
+      method: 'POST', 
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${Token}`,
@@ -62,10 +62,10 @@ class Home extends Component {
         const errorText = await response.json();
         throw new Error(errorText.error || 'Error archiving note'); // Access the error message properly
       }
-      this.fetchNotes(); // Refresh notes after archiving
+      this.fetchNotes(); 
     } catch (error) {
       console.error('Error archiving note:', error);
-      alert(error.message); // Alert the error message
+      alert(error.message); 
     }
   };
   
@@ -102,7 +102,7 @@ class Home extends Component {
     event.preventDefault();
     const { title, text, editingNote } = this.state;
     const options = {
-      method: editingNote ? 'PUT' : 'POST', // Use PUT if editing an existing note
+      method: editingNote ? 'PUT' : 'POST', 
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${Token}`,
