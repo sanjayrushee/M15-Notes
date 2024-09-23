@@ -124,7 +124,7 @@ class Login extends Component{
                       />
                      </div>
                      <div className="text-end">
-                     <Link to="/pswforgot">
+                     <Link to="/forgotemail">
                         <span className="text-end text-blue-600 text-sm font-medium">Forgot password</span>
                         </Link>
                      </div>
