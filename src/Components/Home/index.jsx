@@ -4,6 +4,8 @@ import Navbar from "../Navbar";
 import { API_CONFIG } from '../ProductRoute&APIs/apiConfig';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
+import {Oval} from "react-loader-spinner";
+
 
 const noteslink = API_CONFIG.NotesLink;
 
@@ -18,12 +20,16 @@ class Home extends Component {
     notes: [],
     editingNote: null, 
     name: '',
+    isLoading: false,
+
 
   };
 
   componentDidMount() {
+    this.setState({isLoading:true})
     this.getusername();
     this.fetchNotes();
+    this.setState({isLoading:false})
 
   }
 
@@ -175,9 +181,14 @@ class Home extends Component {
   };
 
   render() {
-    const {name, isFormVisible, notes, title, text } = this.state;
+    const {name,isLoading, isFormVisible, notes, title, text } = this.state;
     return (
       <>
+      {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+            <Oval type="Puff" color="#00BFFF" height={50} width={50} />
+          </div>
+        )}
         <Navbar username={name} />
         <div className="relative  min-h-fit mx-3 my-3 sm:ml-72 sm:mt-3 inset-0">
           <div className="mb-4">

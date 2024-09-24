@@ -40,7 +40,7 @@ class ArchNotes extends Component {
   // Delete note from archive
   deleteNote = async (noteId) => {
     const options = {
-      method: "DELETE",
+      method: "delete",
       headers: {
         Authorization: `Bearer ${Token}`,
       },
@@ -48,9 +48,10 @@ class ArchNotes extends Component {
 
     try {
       const response = await fetch(`${noteslink}archive/${noteId}`, options); // Fixed URL
+      console.log(response)
       if (!response.ok) {
         const errorText = await response.json();
-        throw new Error(errorText || "Error deleting note");
+        console.log(errorText)
       }
       this.setState(prevState => ({
         archnotes: prevState.archnotes.filter(note => note._id !== noteId)
