@@ -32,7 +32,7 @@ class Login extends Component{
 
   onSubmitFunction = async (event) => {
     event.preventDefault()
-    this.setState({isloading: true})
+    this.setState({isloading: true ,iserror: false, errorMsg:''})
     const { email, password } = this.state;
     const options = {
       method: 'POST',
