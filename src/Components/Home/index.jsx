@@ -1,44 +1,304 @@
 import { Component } from "react";
-import { IoArchiveOutline } from "react-icons/io5";
-import { MdOutlineLightbulb } from "react-icons/md";
-import { MdDeleteOutline  } from "react-icons/md";
+import { MdAddBox } from "react-icons/md";
 import Navbar from "../Navbar";
+import { API_CONFIG } from '../ProductRoute&APIs/apiConfig';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
+import {Oval} from "react-loader-spinner";
 
-class Home extends Component{
-    render(){
-        return(
-            <>
-            <Navbar />
-            <div className="flex  flex-col min-h-screen fixed top-28">
-            <div className="overflow-y-auto py-4 px-3">
-              <ul className="space-y-2">
-                <li>
-                  <a href="#" className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <MdOutlineLightbulb />
-                    <span className="ml-3">Notes</span>
-                  </a>
-                      </li>
-                      <li>
-                    <a href="#" className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <IoArchiveOutline />
-                      <span className="ml-3">Archive</span>
-                    </a>
-                        </li>
-                        <li>
-                    <a href="#" className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                      <MdDeleteOutline  />
-                      <span className="ml-3">Delete</span>
-                    </a>
-                  </li>
-                </ul>
-                </div>
-            </div>
-            <div className="">
-                <h2 className=" text-gray-300">hello this is home</h2>
-            </div>
-            </>
-        )
+
+const noteslink = API_CONFIG.NotesLink;
+
+const Token = Cookies.get('jwtToken');
+
+class Home extends Component {
+  state = {
+    isFormVisible: false,
+    text: '',
+    title: '',
+    rows: 10,
+    notes: [],
+    editingNote: null, 
+    name: '',
+    isLoading: false,
+
+
+  };
+
+  componentDidMount() {
+    this.setState({isLoading:true})
+    this.getusername();
+    this.fetchNotes();
+    this.setState({isLoading:false})
+
+  }
+
+  getusername = () =>{
+    const decodedToken = jwtDecode(Token);
+    const {username} = decodedToken;
+    this.setState({name:username})
+    console.log(decodedToken)
+  }
+
+
+  fetchNotes = async () => {
+    const options = {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${Token}`,
+      },
+    };
+
+    try {
+      const response = await fetch(noteslink, options);
+      if (!response.ok) {
+        const errorText = await response.json();
+        throw new Error(errorText || 'Error fetching notes');
+      }
+      const notes = await response.json();
+      this.setState({ notes });
+    } catch (error) {
+      console.error('Error fetching notes:', error);
     }
+  }; 
+
+  archiveNote = async (noteId) => {
+    const options = {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${Token}`,
+      },
+    };
+
+    try {
+      const response = await fetch(`${noteslink}/archive/${noteId}`, options);
+      console.log(response)
+      if (!response.ok) {
+        const errorText = await response.json();
+        console.log(errorText)
+        throw new Error(errorText || 'Error Archive note');
+      }
+    } catch (error) {
+      console.error('Error Archive note:', error);
+      alert("some error occured");
+    }
+    this.fetchNotes() 
+  };
+
+  deleteNote = async (noteId) => {
+    console.log(noteId)
+    console.log(Token)
+    const options = {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${Token}`,
+      },
+    };
+
+    try {
+      const response = await fetch(`${noteslink}/${noteId}`, options);
+      console.log(response)
+      if (!response.ok) {
+        const errorText = await response.json();
+        console.log(errorText)
+        throw new Error(errorText || 'Error deleting note');
+      }
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      alert("some error occured");
+    }
+    this.fetchNotes() 
+  };
+
+
+
+  handleKeyDownTitle = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.textareaRef.focus();
+    }
+  };
+
+  handleButtonClick = () => {
+    this.setState({ isFormVisible: true, editingNote: null, title: '', text: '' }); // Reset form for new note
+  };
+
+  onChangeTitle = (e) => {
+    this.setState({ title: e.target.value });
+  };
+
+  onChangeText = (e) => {
+    this.setState({ text: e.target.value });
+  };
+
+  autoResize = (event) => {
+    const target = event.target;
+    target.style.height = 'auto';
+    const maxRows = 10;
+    const lineHeight = parseInt(window.getComputedStyle(target).lineHeight, 15);
+    const maxHeight = maxRows * lineHeight;
+    target.style.height = `${Math.min(target.scrollHeight, maxHeight)}px`;
+  };
+
+  onSubmitNotes = async (event) => {
+    event.preventDefault();
+    const { title, text, editingNote } = this.state;
+    if (title == '' && text == ''){
+      return alert("Enter title and text")
+    }
+    const options = {
+      method: editingNote ? 'PUT' : 'POST', 
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Token}`,
+      },
+      body: JSON.stringify({
+        title,
+        description: text,
+      }),
+    };
+
+    try {
+      const url = editingNote ? `${noteslink}/${editingNote._id}` : noteslink; // Adjust URL for PUT request
+      const response = await fetch(url, options);
+      const data = await response.text();
+      console.log(data);
+      this.setState({ isFormVisible: false, editingNote: null }); // Reset form
+    } catch (error) {
+      console.error('Error:', error);
+      alert(error);
+    }
+    this.fetchNotes()
+
+  };
+
+  startEditing = (note) => {
+    this.setState({ isFormVisible: true, editingNote: note, title: note.title, text: note.description });
+  };
+
+  closeForm = () => {
+    this.setState({ isFormVisible: false, editingNote: null, title: '', text: '' }); // Reset form
+  };
+
+  render() {
+    const {name,isLoading, isFormVisible, notes, title, text } = this.state;
+    return (
+      <>
+      {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+            <Oval type="Puff" color="#00BFFF" height={50} width={50} />
+          </div>
+        )}
+        <Navbar username={name} />
+        <div className="relative  min-h-fit mx-3 my-3 sm:ml-72 sm:mt-3 inset-0">
+          <div className="mb-4">
+            <button
+              className="bg-blue-700 p-2 py-3 rounded-lg flex justify-center items-center"
+              type="button"
+              onClick={this.handleButtonClick}
+            >
+              <MdAddBox size={22}/> <span className="ml-2 mr-2 font-bold">Add Note</span>
+            </button>
+          </div>
+          {isFormVisible && (
+            <>
+              <div className="fixed inset-0 bg-black opacity-50 z-10" />
+              <div className="fixed inset-0 sm:left-40 flex items-center justify-center z-20">
+                <div className="w-full max-w-xl p-4 bg-[#1B1B1B] text-[#F4FAF8] border shadow-md rounded-md mx-4 sm:mx-0"> {/* Add margin */}
+                  <form onSubmit={this.onSubmitNotes} className="flex flex-col space-y-3">
+                    <input
+                      className="w-full bg-transparent border-b border-gray-300 p-2 focus:outline-none focus:border-yellow-500  text-lg placeholder-gray-500"
+                      placeholder="Title"
+                      type="text"
+                      value={title}
+                      onChange={this.onChangeTitle}
+                      onKeyDown={this.handleKeyDownTitle}
+                    />
+                    <textarea
+                      className="w-full bg-transparent border-b border-gray-300 p-2 focus:outline-none focus:border-yellow-500  placeholder-gray-500 resize-none"
+                      placeholder="Take a note..."
+                      rows={this.state.rows}
+                      value={text}
+                      onInput={this.autoResize}
+                      onChange={this.onChangeText}
+                      ref={(ref) => { this.textareaRef = ref; }}
+                    />
+                    <div className="flex h-auto justify-between">
+                      <button
+                        type="submit"
+                        className="text-[#fff] hover:text-blue-700 rounded px-4 py-1 focus:outline-none"
+                        >
+                        {this.state.editingNote ? 'Update' : 'Submit'}
+                      </button>
+                      {this.state.editingNote && (
+                        <button
+                          type="button"
+                          className="text-red-400 hover:text-red-300 rounded px-4 py-1 focus:outline-none"
+                          onClick={() => this.deleteNote(this.state.editingNote._id)} // Call deleteNote for the editing note
+                        >
+                          Delete
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        className="text-gray-600 hover:text-gray-500 rounded px-4 py-1 focus:outline-none"
+                        onClick={this.closeForm} // Close the form without saving
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </>
+          )}
+         <div className="columns-2 md:columns-4 gap-4">
+         {notes.slice().reverse().map((note, index) => (
+            <div
+              className="group relative overflow-hidden break-inside-avoid border border-gray-700 rounded-lg p-4 shadow-sm bg-gray-900 text-white mb-4 cursor-pointer"
+              key={index}
+              onClick={() => this.startEditing(note)} 
+            >
+              <h2 className="text-lg font-bold mb-2 line-clamp-2 overflow-hidden text-ellipsis whitespace-nowrap">
+                {note.title}
+              </h2>
+              
+              <p className="text-gray-400 mb-9 line-clamp-3 max-h-80 overflow-hidden text-ellipsis whitespace-pre-wrap break-words">
+                {note.description}
+              </p>
+              
+              <div className="absolute bottom-4 left-4 right-4 flex justify-between opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation(); 
+                    this.deleteNote(note._id);
+                  }}
+                  className="text-red-400 hover:text-red-300"
+                  type="button"
+                >
+                  Delete
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    this.archiveNote(note._id);
+                  }}
+                  className="text-blue-400 hover:text-blue-300"
+                  type="button"
+                >
+                  Archive
+                </button>
+              </div>
+            </div>
+          ))}
+
+        </div>
+
+        </div>
+      </>
+    );
+  }
 }
 
-export default Home
+export default Home;
