@@ -1,22 +1,28 @@
 import { Component } from "react";
 import { API_CONFIG } from "../ProductRoute&APIs/apiConfig";
 import {Oval} from "react-loader-spinner";
+import { IoEyeSharp } from "react-icons/io5";
+import { BsFillEyeSlashFill } from "react-icons/bs";
+
+
 
 const ApiRegLink = API_CONFIG.UserRegLink;
 
 class ForgotPassword extends Component {
   state = {
-    otp: '', // Array to hold OTP digits
+    otp: '', 
     email: '',
     password: '',
     confirmPassword: '',
     errorMsg: '',
     iserror: false,
     isemailvalid: false,
-    isOTPVerified: false, // New state to track OTP verification
+    isOTPVerified: false,
     otpbtndisable: false,
     emailbtndisable: false,
-    isLoading: true
+    isLoading: false,
+    ispasswordVisible: false,
+    isrepasswordVisible:false,
   };
 
   handleChangeemail = (e) => {
@@ -27,9 +33,21 @@ class ForgotPassword extends Component {
     this.setState({ [e.target.name]: e.target.value });
   };
 
+  ispassword = () =>{
+    this.setState((prevState) =>({
+      ispasswordVisible: !prevState.ispasswordVisible
+    }))
+  }
+
+  isrepassword = () =>{
+    this.setState((prevState) =>({
+      isrepasswordVisible: !prevState.isrepasswordVisible
+    }))
+  }
+
   onSubmitEmail = async (e) => {
     e.preventDefault();
-    this.setState({ emailbtndisable: true });
+    this.setState({ emailbtndisable: true,isLoading: true });
     const { email } = this.state;
     this.setState({ errorMsg: '', iserror: false });
     const url = `${ApiRegLink}reset-password-request`;
@@ -50,7 +68,7 @@ class ForgotPassword extends Component {
     } catch (error) {
       alert(error);
     }
-    this.setState({ emailbtndisable: false });
+    this.setState({ emailbtndisable: false ,isLoading: false});
   };
 
   handleInputChange = (e, index) => {
@@ -71,7 +89,7 @@ class ForgotPassword extends Component {
   handleSubmit = async (e) => {
     e.preventDefault();
     const { otp, email } = this.state;
-    this.setState({ otpbtndisable: true });
+    this.setState({ otpbtndisable: true,isLoading: true });
 
     const url = `${ApiRegLink}/check-verification-code`;
     const option = {
@@ -88,7 +106,6 @@ class ForgotPassword extends Component {
       const response = await fetch(url, option);
       const data = await response.json();
       if (response.ok) {
-        alert(data.message);
         this.setState({ isOTPVerified: true });
       } else {
         alert(data.error);
@@ -96,19 +113,21 @@ class ForgotPassword extends Component {
     } catch (error) {
       alert(error);
     }
-    this.setState({ otpbtndisable: false });
+    this.setState({ otpbtndisable: false,isLoading: false });
   };
 
   handleChangePasswordSubmit = async (e) => {
     e.preventDefault();
     const { email, password, confirmPassword } = this.state;
-
+    this.setState({ isLoading: true });
+  
     if (password !== confirmPassword) {
       alert('Passwords do not match');
+      this.setState({ isLoading: false }); 
       return;
     }
-
-    const url = `${ApiRegLink}/reset-password`;
+  
+    const url = `${ApiRegLink}change-password`;
     const option = {
       method: 'POST',
       headers: {
@@ -119,22 +138,35 @@ class ForgotPassword extends Component {
         newPassword: password,
       }),
     };
-
+  
     try {
       const response = await fetch(url, option);
-      const data = await response.json();
+  
       if (response.ok) {
-        this.setState({email:'',otp: '',password:'',confirmPassword:''})
+        const data = await response.json();
+  
+        this.setState({
+          email: '',
+          otp: '',
+          password: '',
+          confirmPassword: '',
+        });
         alert('Password changed successfully');
-        
+  
+        const { history } = this.props;
+        history.replace('/login');
       } else {
-        alert(data.error);
+        const errorData = await response.json();
+        alert(errorData.error || 'Failed to reset password');
       }
     } catch (error) {
-      alert(error);
+      alert('An error occurred. Please try again.');
+      console.error('Error:', error);
+    } finally {
+      this.setState({ isLoading: false });
     }
   };
-
+  
   render() {
     const { iserror,isLoading, emailbtndisable, otp, otpbtndisable, isemailvalid, errorMsg, email, isOTPVerified, password, confirmPassword } = this.state;
     return (
@@ -207,36 +239,73 @@ class ForgotPassword extends Component {
         )}
 
         {isOTPVerified && (
-          <form onSubmit={this.handleChangePasswordSubmit} className="w-full max-w-md p-8 text-gray-200 bg-gray-800 rounded-lg">
-            <p className="text-xl font-bold w-full text-center">Change your Password</p>
-            <div className="mt-4">
-              <input
-                className="text-gray-200 bg-gray-900 border rounded py-2 px-4 block w-full focus:outline-none focus:ring-2 focus:ring-blue-700"
-                type="password"
-                required
-                name="password"
-                placeholder="New Password"
-                value={password}
-                onChange={this.handleChangePassword}
+          <form 
+          onSubmit={this.handleChangePasswordSubmit} 
+          className="w-full max-w-md p-8 text-gray-200 bg-gray-800 rounded-lg"
+        >
+          <p className="text-xl font-bold w-full text-center mb-4">Change your Password</p>
+        
+          
+          <div className="relative mt-4">
+            <input
+              className="text-gray-200 bg-gray-900 border border-gray-700 rounded py-2 px-4 block w-full focus:outline-none focus:ring-2 focus:ring-blue-700 pr-10"
+              type={this.state.ispasswordVisible ? "text" : "password"}
+              required
+              name="password"
+              minLength={7}
+              maxLength={18}
+              placeholder="New Password"
+              value={password}
+              onChange={this.handleChangePassword}
+            />
+            {this.state.ispasswordVisible ? (
+              <IoEyeSharp 
+                onClick={this.ispassword} 
+                className="w-4 h-4 absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer" 
               />
-            </div>
-            <div className="mt-4">
-              <input
-                className="text-gray-200 bg-gray-900 border rounded py-2 px-4 block w-full focus:outline-none focus:ring-2 focus:ring-blue-700"
-                type="password"
-                required
-                name="confirmPassword"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={this.handleChangePassword}
+            ) : (
+              <BsFillEyeSlashFill 
+                onClick={this.ispassword} 
+                className="w-4 h-4 absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer" 
               />
-            </div>
-            <div className="mt-8">
-              <button type="submit" className="bg-blue-700 text-white font-bold py-2 px-4 w-full rounded hover:bg-blue-600">
-                Change Password
-              </button>
-            </div>
-          </form>
+            )}
+          </div>
+        
+          <div className="relative mt-4">
+            <input
+              className="text-gray-200 bg-gray-900 border border-gray-700 rounded py-2 px-4 block w-full focus:outline-none focus:ring-2 focus:ring-blue-700 pr-10"
+              required
+              type={this.state.isrepasswordVisible ? "text" : "password"}
+              name="confirmPassword"
+              minLength={7}
+              maxLength={18}
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={this.handleChangePassword}
+            />
+            {this.state.isrepasswordVisible ? (
+              <IoEyeSharp 
+                onClick={this.isrepassword} 
+                className="w-4 h-4 absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer" 
+              />
+            ) : (
+              <BsFillEyeSlashFill 
+                onClick={this.isrepassword} 
+                className="w-4 h-4 absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer" 
+              />
+            )}
+          </div>
+        
+          <div className="mt-8">
+            <button 
+              type="submit" 
+              className="bg-blue-700 text-white font-bold py-2 px-4 w-full rounded hover:bg-blue-600 transition duration-200 ease-in-out"
+            >
+              Change Password
+            </button>
+          </div>
+        </form>
+        
         )}
       </div>
     );

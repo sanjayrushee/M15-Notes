@@ -5,12 +5,12 @@ import { BsFillEyeSlashFill } from "react-icons/bs";
 import { API_CONFIG } from '../ProductRoute&APIs/apiConfig'
 import { RingLoader  } from 'react-spinners';
 
-const signup_api = API_CONFIG.RegUrl
+const signup_api = API_CONFIG.UserRegLink
 
 class Signup extends Component{
   state = {
-    ispasswordVisible: true,
-    isrepasswordVisible:true,
+    ispasswordVisible: false,
+    isrepasswordVisible:false,
     username:"",
     email:"",
     password: "",
@@ -62,8 +62,9 @@ class Signup extends Component{
       return
     }
 
-    this.setState({isloading: true})
+    this.setState({isloading: true,iserror:false  })
 
+    const url = `${signup_api}register`
     const options = {
       method: 'POST',
       headers: {
@@ -77,7 +78,7 @@ class Signup extends Component{
     };
 
     try{
-      const response = await fetch(signup_api,options);
+      const response = await fetch(url,options);
       const data = await response.json();
       if(response.ok){
         alert(`${data.message}. Redirecting to login page.`);
@@ -102,8 +103,7 @@ class Signup extends Component{
   }
 
   render() {
-    const { iserror, isloading, erroMsg } = this.state
-    console.log(iserror,erroMsg)
+    const { iserror,username,email,password,Repassword, isloading, erroMsg } = this.state
     return(
       <div className="font-[sans-serif]  max-w-4xl flex items-center mx-auto md:min-h-screen p-4">
         <div className="relative grid bg-gray-900  text-gray-200 md:grid-cols-3 items-center shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded-xl overflow-hidden">
@@ -120,7 +120,7 @@ class Signup extends Component{
             <p className="text-[13px] text-gray-300 mt-3 leading-relaxed">Let your notes be the pathway to your dream. where ideas are nurtured, clarity is achieved, and the full potential of your creativity is realized.</p>
           </div>
         </div>
-        <form  autocomplete="off" onSubmit={this.onSubmitForm}  className="md:col-span-2 bg-gray-900 text-gray-200 w-full py-6 px-6  sm:px-16">
+        <form  autoComplete="off" onSubmit={this.onSubmitForm}  className="md:col-span-2 bg-gray-900 text-gray-200 w-full py-6 px-6  sm:px-16">
           <div className="mb-6">
             <h3 className=" text-2xl font-bold">Create an account</h3>
           </div>
@@ -133,6 +133,8 @@ class Signup extends Component{
                 type="text" 
                 onChange={this.onchangeName}
                 required 
+                value={username}
+                maxLength={15}
                 className=" border bg-gray-900 border-gray-300 w-full text-sm px-4 py-2.5 rounded-md outline-blue-500" 
                 placeholder="Enter name" 
               />
@@ -147,6 +149,7 @@ class Signup extends Component{
                 type="email" 
                 onChange={this.onchangeEmail} 
                 required 
+                value={email}
                 className="border bg-gray-900 border-gray-300 w-full text-sm px-4 py-2.5 rounded-md outline-blue-500" 
                 placeholder="Enter email" 
               />
@@ -159,22 +162,24 @@ class Signup extends Component{
               <input 
                 name="password"
                 onChange={this.onchangepassword}
-                type={this.state.ispasswordVisible ? "password" :  "text"}
+                type={this.state.ispasswordVisible ? "text" : "password"}
                 required 
-                minLength="7"
+                value={password}
+                minLength={7}
+                maxLength={18}
                 className="border bg-gray-900 border-gray-300 w-full text-sm px-4 py-2.5 rounded-md outline-blue-500" 
                 placeholder="Enter password" 
               />
               {this.state.ispasswordVisible ? (
-                <BsFillEyeSlashFill 
-                  onClick={this.ispassword} 
-                  className="w-4 h-4 absolute right-4 cursor-pointer" 
-                />
-              ) : (
-                <IoEyeSharp 
-                  onClick={this.ispassword} 
-                  className="w-4 h-4 absolute right-4 cursor-pointer" 
-                />
+                   <IoEyeSharp 
+                   onClick={this.ispassword} 
+                   className="w-4 h-4 absolute right-4 cursor-pointer" 
+                 />
+               ) : (
+                 <BsFillEyeSlashFill 
+                   onClick={this.ispassword} 
+                   className="w-4 h-4 absolute right-4 cursor-pointer" 
+                 />
               )}
             </div>
           </div>
@@ -185,22 +190,24 @@ class Signup extends Component{
               <input 
                 name="repassword"
                 onChange={this.onchangeRepassword}
-                type={this.state.isrepasswordVisible ? "password" :  "text"}
+                type={this.state.isrepasswordVisible ? "text" : "password"}
                 required 
-                minLength="7"
+                value={Repassword}
+                minLength={7}
+                maxLength={18}
                 className="border bg-gray-900 border-gray-300 w-full text-sm px-4 py-2.5 rounded-md outline-blue-500" 
                 placeholder="Enter password" 
               />
               {this.state.isrepasswordVisible ? (
-                <BsFillEyeSlashFill 
-                  onClick={this.isrepassword} 
-                  className="w-4 h-4 absolute right-4 cursor-pointer" 
-                />
-              ) : (
-                <IoEyeSharp 
-                  onClick={this.isrepassword} 
-                  className="w-4 h-4 absolute right-4 cursor-pointer" 
-                />
+                   <IoEyeSharp 
+                   onClick={this.isrepassword} 
+                   className="w-4 h-4 absolute right-4 cursor-pointer" 
+                 />
+               ) : (
+                 <BsFillEyeSlashFill 
+                   onClick={this.isrepassword} 
+                   className="w-4 h-4 absolute right-4 cursor-pointer" 
+                 />
               )}
             </div>
                 {iserror? <h3 className="mt-5 text-red-600 font-bold">* {erroMsg}</h3> : ""}

@@ -119,6 +119,7 @@ class Login extends Component{
                         className="text-gray-200 bg-gray-900 border rounded py-2 px-4 block w-full focus:outline-2 focus:outline-blue-700"
                         type="password"
                         required
+                        minLength={7}
                         value={password}
                         onChange={this.handleChangepassword}
                       />

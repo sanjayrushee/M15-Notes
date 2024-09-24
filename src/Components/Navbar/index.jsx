@@ -6,13 +6,29 @@ import { CiLogout } from "react-icons/ci";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { Component } from "react";
 import Cookies from 'js-cookie'
+import { jwtDecode } from 'jwt-decode';
 
+const Token = Cookies.get('jwtToken');
 
 class  Navbar extends Component {
 
-      state = {
-        isSidebarVisible: false,
-      }
+    state = {
+      isSidebarVisible: false,
+      name: '',
+
+    }
+
+    componentDidMount(){
+      this.getusername()
+    }
+
+
+    getusername = () =>{
+      const decodedToken = jwtDecode(Token);
+      const {email} = decodedToken;
+      this.setState({name:email})
+      console.log(decodedToken)
+    }
 
 
     toggleSidebar = () => {
@@ -29,7 +45,7 @@ class  Navbar extends Component {
       history.replace('/login')
     }
   render(){
-    const { isSidebarVisible } = this.state;
+    const { isSidebarVisible,name } = this.state;
 
     return(
   <>
@@ -45,7 +61,7 @@ class  Navbar extends Component {
             </svg>
           </button>
           <nav className=' sm:ml-64 text-xl p-2 mr-2 sm:mr-8 mt-2 ms-3'>
-            <p>Hello User</p>
+            <p>Hello {name}</p>
           </nav>
          </div>
           

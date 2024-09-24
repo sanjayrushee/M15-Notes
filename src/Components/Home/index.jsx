@@ -4,8 +4,8 @@ import Navbar from "../Navbar";
 import { API_CONFIG } from '../ProductRoute&APIs/apiConfig';
 import Cookies from 'js-cookie';
 
-const addnoteslink = API_CONFIG.addnotes;
-const fetchNotesLink = API_CONFIG.fetchNotesLink;
+const noteslink = API_CONFIG.NotesLink;
+
 const Token = Cookies.get('jwtToken');
 
 class Home extends Component {
@@ -22,53 +22,54 @@ class Home extends Component {
     this.fetchNotes();
   }
 
-  deleteNote = async (noteId) => {
-    console.log(noteId)
-    console.log(Token)
+
+  fetchNotes = async () => {
     const options = {
-      method: 'delete',
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${Token}`,
       },
     };
 
     try {
-      const response = await fetch(`${fetchNotesLink}/${noteId}`, options);
+      const response = await fetch(noteslink, options);
+      if (!response.ok) {
+        const errorText = await response.json();
+        throw new Error(errorText || 'Error fetching notes');
+      }
+      const notes = await response.json();
+      this.setState({ notes });
+    } catch (error) {
+      console.error('Error fetching notes:', error);
+    }
+  };
+
+  deleteNote = async (noteId) => {
+    console.log(noteId)
+    console.log(Token)
+    const options = {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${Token}`,
+      },
+    };
+
+    try {
+      const response = await fetch(`${noteslink}/${noteId}`, options);
       console.log(response)
       if (!response.ok) {
         const errorText = await response.json();
         console.log(errorText)
         throw new Error(errorText || 'Error deleting note');
       }
-      this.fetchNotes(); 
     } catch (error) {
       console.error('Error deleting note:', error);
-      alert(error);
+      alert("some error occured");
     }
+    this.fetchNotes() 
   };
 
-  archiveNote = async (noteId) => {
-    const options = {
-      method: 'POST', 
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Token}`,
-      },
-    };
-  
-    try {
-      const response = await fetch(`${fetchNotesLink}/${noteId}/archive`, options);
-      if (!response.ok) {
-        const errorText = await response.json();
-        throw new Error(errorText.error || 'Error archiving note'); // Access the error message properly
-      }
-      this.fetchNotes(); 
-    } catch (error) {
-      console.error('Error archiving note:', error);
-      alert(error.message); 
-    }
-  };
-  
+
 
   handleKeyDownTitle = (event) => {
     if (event.key === 'Enter') {
@@ -101,6 +102,9 @@ class Home extends Component {
   onSubmitNotes = async (event) => {
     event.preventDefault();
     const { title, text, editingNote } = this.state;
+    if (title == '' && text == ''){
+      return alert("Enter title and text")
+    }
     const options = {
       method: editingNote ? 'PUT' : 'POST', 
       headers: {
@@ -114,38 +118,20 @@ class Home extends Component {
     };
 
     try {
-      const url = editingNote ? `${fetchNotesLink}/${editingNote._id}` : addnoteslink; // Adjust URL for PUT request
+      const url = editingNote ? `${noteslink}/${editingNote._id}` : noteslink; // Adjust URL for PUT request
       const response = await fetch(url, options);
       const data = await response.text();
       console.log(data);
-      this.fetchNotes(); 
       this.setState({ isFormVisible: false, editingNote: null }); // Reset form
     } catch (error) {
       console.error('Error:', error);
       alert(error);
     }
+    this.fetchNotes()
+
   };
 
-  fetchNotes = async () => {
-    const options = {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${Token}`,
-      },
-    };
-
-    try {
-      const response = await fetch(fetchNotesLink, options);
-      if (!response.ok) {
-        const errorText = await response.json();
-        throw new Error(errorText || 'Error fetching notes');
-      }
-      const notes = await response.json();
-      this.setState({ notes });
-    } catch (error) {
-      console.error('Error fetching notes:', error);
-    }
-  };
+  
 
   // Function to start editing a note
   startEditing = (note) => {
@@ -176,7 +162,7 @@ class Home extends Component {
             <>
               <div className="fixed inset-0 bg-black opacity-50 z-10" />
               <div className="fixed inset-0 sm:left-40 flex items-center justify-center z-20">
-                <div className="w-full max-w-3xl p-4 bg-[#1B1B1B] text-[#F4FAF8] border shadow-md rounded-md mx-4 sm:mx-0"> {/* Add margin */}
+                <div className="w-full max-w-xl p-4 bg-[#1B1B1B] text-[#F4FAF8] border shadow-md rounded-md mx-4 sm:mx-0"> {/* Add margin */}
                   <form onSubmit={this.onSubmitNotes} className="flex flex-col space-y-3">
                     <input
                       className="w-full bg-transparent border-b border-gray-300 p-2 focus:outline-none focus:border-yellow-500  text-lg placeholder-gray-500"
