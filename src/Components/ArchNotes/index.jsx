@@ -95,7 +95,7 @@ class ArchNotes extends Component {
           {archnotes.length === 0 ? (
             <div className="flex justify-center items-center w-full">
               <img
-                src="/public/Empty-bro.png"
+                src="/Empty-bro.png"
                 alt="No Notes"
                 className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg"
               />
