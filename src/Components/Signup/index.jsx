@@ -64,7 +64,7 @@ class Signup extends Component{
 
     this.setState({isloading: true,iserror:false  })
 
-    const url = `${signup_api}register`
+    const url = `${signup_api}/register`
     const options = {
       method: 'POST',
       headers: {

@@ -47,7 +47,6 @@ class DelNotes extends Component{
     
         try {
           const response = await fetch(`${noteslink}/${noteId}/recover`, options);
-          console.log(response)
           this.setState(prevState => ({
             delnotes: prevState.delnotes.filter(note => note._id !== noteId)
           }));
