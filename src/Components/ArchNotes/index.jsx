@@ -91,7 +91,7 @@ class ArchNotes extends Component {
     return (
       <>
         <Navbar />
-        <div className="relative min-h-fit mx-3 my-3 sm:ml-72 sm:mt-3 inset-0 flex justify-center items-center h-screen">
+        <div className="relative min-h-fit mx-3 my-3 sm:ml-72 sm:mt-3 inset-0">
           {archnotes.length === 0 ? (
             <div className="flex justify-center items-center w-full">
               <img
