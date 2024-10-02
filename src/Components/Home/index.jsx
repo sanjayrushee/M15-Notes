@@ -26,22 +26,18 @@ class Home extends Component {
     isLoading: false,
   };
   async componentDidMount() {
-    console.log("Component is mounting...");
     this.setState({ isLoading: true });
 
     try {
       await this.getUsername();
       await this.fetchNotes();
     } catch (error) {
-      console.error("Error in componentDidMount:", error);
     } finally {
       this.setState({ isLoading: false });
-      console.log("Loading finished. Current state:", this.state);
     }
   }
 
   getUsername = async () => {
-    console.log("Fetching username...");
     const Token = Cookies.get('jwtToken');
     const decodedToken = await jwtDecode(Token);
     const { username } = decodedToken;
@@ -50,26 +46,32 @@ class Home extends Component {
   };
 
   fetchNotes = async () => {
-    console.log("Fetching notes...");
+    // Removed console logging for "Fetching notes..."
     const noteslink = API_CONFIG.NotesLink;
     const Token = Cookies.get('jwtToken');
     const options = {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${Token}`,
-      },
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${Token}`,
+        },
     };
 
-    const response = await fetch(noteslink, options);
-    if (!response.ok) {
-      const errorText = await response.json();
-      throw new Error(errorText || 'Error fetching notes');
-    }
+    try {
+        const response = await fetch(noteslink, options);
+        if (!response.ok) {
+            const errorText = await response.json();
+            throw new Error(errorText || 'Error fetching notes');
+        }
 
-    const notes = await response.json();
-    console.log("Notes fetched:", notes);
-    this.setState({ notes });
-  };
+        const notes = await response.json();
+        this.setState({ notes });
+
+        // No console log statements here for the notes
+    } catch (error) {
+        console.error('Error fetching notes:', error);
+    }
+};
+
 
   
 
