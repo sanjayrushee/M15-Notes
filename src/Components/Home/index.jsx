@@ -68,7 +68,7 @@ class Home extends Component {
 
         // No console log statements here for the notes
     } catch (error) {
-        console.error('Error fetching notes:', error);
+        console.error('Error fetching notes');
     }
 };
 
@@ -184,7 +184,7 @@ class Home extends Component {
       this.closeForm(); 
     } catch (error) {
       console.error('Error:', error);
-      alert(error);
+      alert("Server Error");
     }
   };
 

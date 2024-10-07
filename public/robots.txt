@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /login/
+Disallow: /signup/
+Allow: /
+
+Sitemap: https://m15notes.sanjayrushee.live/sitemap.xml
+Sitemap: https://m15notes.sanjayrushee.live/2ndsitemaps.xml
